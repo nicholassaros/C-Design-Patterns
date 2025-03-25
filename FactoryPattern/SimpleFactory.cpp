@@ -1,5 +1,7 @@
 
 #include <iostream>
+#include <fstream>
+#include <string>
 
 using namespace std;
 
@@ -10,9 +12,29 @@ class ILogger {
 };
 
 class FileLogger : public ILogger {
+    private:
+        string m_logLevel;
+        string m_filePath;
+
     public:
-        FileLogger() {}
-        void Log(string message) override {}
+        FileLogger(string filePath)
+            : m_filePath(filePath), m_logLevel("INFO") {}
+
+        void Log(string message) override {
+
+            ofstream logFile(m_filePath);
+            if(!logFile){
+                cerr <<  "Error opening file " << strerror(errno);
+            }
+            logFile << m_logLevel << message << endl;
+            logFile.close();
+        } 
+        
+        void SwitchLogLevel(string logLevel) {
+            m_logLevel = logLevel;
+        }
+
+        void SwitchTimeFormat(){}
 
 };
 
@@ -26,12 +48,17 @@ class DatabaseLogger : public ILogger {
     public:
         DatabaseLogger() {}
         void Log(string message) override{}
+        void SetConnection() {}
+        void SetLogTable() {}
+        void CloseConnection() {}
 };
 
 class JsonLogger : public ILogger {
     public: 
         JsonLogger() {}
         void Log(string message) override{}
+        void SetFilePath() {}
+        void PrettyPrint() {}
 };
 
 
@@ -40,17 +67,22 @@ class JsonLogger : public ILogger {
     take in a string type and creates the corresponding object. This can be improved as
     this will eventually become un-maintainable as we add more loggers
 */
+
+enum Type { FILE, CONSOLE, DATABASE, JSON};
 class ConcreteLoggerFactory {
     public:
-        ILogger* createLogger(string type){
-            if(type == "FileLogger"){
+        ILogger* createLogger(Type t){
+            if(t == Type::FILE){
                 return new FileLogger();
-            } else if (type == "ConsoleLogger"){
+
+            } else if (t == Type::CONSOLE){
                 return new ConsoleLogger();
-            } else if (type == "DatabaseLogger"){
+
+            } else if (t == Type::DATABASE){
                 return new DatabaseLogger();
-            } else if (type == "JsonLogger"){
-                return new JsonLogger();
+
+            } else if (t == Type::JSON){
+                return new JsonLogger();  
             }
         }
 };
