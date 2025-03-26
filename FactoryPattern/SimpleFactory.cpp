@@ -39,9 +39,30 @@ class FileLogger : public ILogger {
 };
 
 class ConsoleLogger : public ILogger {
+    private:
+        string m_logLocation;
     public:
-        ConsoleLogger() {}
-        void Log(string message) override {}
+        ConsoleLogger() 
+            : m_logLocation("OUT") {}
+
+        void Log(string message) override {
+            if(m_logLocation == "OUT"){
+                cout << message << endl;
+            } else {
+                cerr << message << endl;
+            }
+        }
+
+        string GetLogOuput() {
+            return m_logLocation;
+        }
+
+        void SetLogOutput(string newOutput) {
+            if(newOutput != "OUT" || newOutput != "ERR"){
+                cerr << "Invalid Log Output for ConsoleLogger. Use 'OUT' or 'ERR'" << endl;
+            }
+            m_logLocation = newOutput;
+        }
 };
 
 class DatabaseLogger : public ILogger {
