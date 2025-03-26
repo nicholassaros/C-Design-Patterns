@@ -17,8 +17,8 @@ class FileLogger : public ILogger {
         string m_filePath;
 
     public:
-        FileLogger(string filePath)
-            : m_filePath(filePath), m_logLevel("INFO") {}
+        FileLogger()
+            : m_filePath("./log_file.log"), m_logLevel("INFO") {}
 
         void Log(string message) override {
 
@@ -28,13 +28,17 @@ class FileLogger : public ILogger {
             }
             logFile << m_logLevel << message << endl;
             logFile.close();
-        } 
+        }
+
+        void SetLogPath(string filePath){
+            m_filePath = filePath;
+        }
         
-        void SwitchLogLevel(string logLevel) {
+        void SetLogLevel(string logLevel) {
             m_logLevel = logLevel;
         }
 
-        void SwitchTimeFormat(){}
+        void SetTimeFormat(){}
 
 };
 
@@ -69,9 +73,8 @@ class DatabaseLogger : public ILogger {
     public:
         DatabaseLogger() {}
         void Log(string message) override{}
-        void SetConnection() {}
         void SetLogTable() {}
-        void CloseConnection() {}
+        ~DatabaseLogger() {}
 };
 
 class JsonLogger : public ILogger {
@@ -89,20 +92,20 @@ class JsonLogger : public ILogger {
     this will eventually become un-maintainable as we add more loggers
 */
 
-enum Type { FILE, CONSOLE, DATABASE, JSON};
+enum LoggerType { FILE, CONSOLE, DATABASE, JSON};
 class ConcreteLoggerFactory {
     public:
-        ILogger* createLogger(Type t){
-            if(t == Type::FILE){
+        ILogger* createLogger(LoggerType t){
+            if(t == LoggerType::FILE){
                 return new FileLogger();
 
-            } else if (t == Type::CONSOLE){
+            } else if (t == LoggerType::CONSOLE){
                 return new ConsoleLogger();
 
-            } else if (t == Type::DATABASE){
+            } else if (t == LoggerType::DATABASE){
                 return new DatabaseLogger();
 
-            } else if (t == Type::JSON){
+            } else if (t == LoggerType::JSON){
                 return new JsonLogger();  
             }
         }
@@ -111,5 +114,9 @@ class ConcreteLoggerFactory {
 
 int main(){
 
+    LoggerType fileLoggerType = LoggerType::FILE;
+    ConcreteLoggerFactory concreteLoggerFactory;
+
+    ILogger* fileLogger = concreteLoggerFactory.createLogger(fileLoggerType);
 
 }
